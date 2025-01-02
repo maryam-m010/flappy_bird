@@ -17,6 +17,8 @@ restart_btn_image = pygame.image.load("restart_button.png")
 pipe_freq = 1500
 last_pipe = pygame.time.get_ticks() - pipe_freq
 
+pass_pipe = False
+
 pipe_gap = 150
 
 screen = pygame.display.set_mode((sw, sh))
@@ -82,6 +84,8 @@ class Pipe(pygame.sprite.Sprite):
             self.rect.topleft = [x,y]
     def update(self):
         self.rect.x -= 6
+        if self.rect.right < 0:
+            self.kill()
 
 flappy = Bird(100,100)
 bird_group = pygame.sprite.Group()
@@ -108,6 +112,10 @@ while True:
     screen.blit(ground_image, (move_ground,580))
     move_ground -= speed
 
+    if pygame.sprite.groupcollide(bird_group, pipe_group, False, False)\
+    or flappy.rect.top < 0:
+        game_over = True
+
     if abs(move_ground) > 35:
         move_ground = 0
     
@@ -120,13 +128,12 @@ while True:
             bottom_pipe = Pipe(-1, sw, sh/2 + (pipe_gap/2) + pipe_height)
             pipe_group.add(top_pipe, bottom_pipe)
             last_pipe = time_now
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit()
-        
-        if event.type == pygame.MOUSEBUTTONDOWN and flying == False and game_over == False:
-            flying = True
-
-
-    pygame.display.update()
+    if len(pipe_group) > 0:
+        if bird_group.sprites()[0].rect.left > pipe_group.sprites()[0].rect.left\
+        and bird_group.sprites()[0].rect.right < pipe_group.sprites()[0].rect.right\
+        and pass_pipe == False:
+            pass_pipe = True
+        if pass_pipe == True:
+            if bird_group.sprites()[0].rect.left > pipe_group.sprites()[0].rect.right:
+                score += 1
+                pass_pipe = False
