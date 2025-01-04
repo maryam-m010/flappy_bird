@@ -87,7 +87,7 @@ class Pipe(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.kill()
 
-flappy = Bird(100,100)
+flappy = Bird(100, 250)
 bird_group = pygame.sprite.Group()
 bird_group.add(flappy)
 
@@ -97,6 +97,32 @@ speed = 5
 flying = False
 
 pipe_group = pygame.sprite.Group()
+
+class Button():
+    def __init__(self, image, x, y):
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+    
+    def draw(self):
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+        action = False
+        pos = pygame.mouse.get_pos()
+
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1:
+                action = True
+
+        return action
+    
+button = Button(restart_btn_image, sw/2 - 50, sh/2)
+
+def reset():
+    flappy.rect.x = 100
+    flappy.rect.y = 250
+    pipe_group.empty()
+    score = 0
+    return score
 
 while True:
     screen.blit(bg_image, (0,0))
@@ -115,6 +141,12 @@ while True:
     if pygame.sprite.groupcollide(bird_group, pipe_group, False, False)\
     or flappy.rect.top < 0:
         game_over = True
+
+    if game_over == True:
+        move_ground = 0
+        if button.draw():
+            game_over = False
+            score = reset()
 
     if abs(move_ground) > 35:
         move_ground = 0
@@ -137,3 +169,16 @@ while True:
             if bird_group.sprites()[0].rect.left > pipe_group.sprites()[0].rect.right:
                 score += 1
                 pass_pipe = False
+            
+
+
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+        
+        if event.type == pygame.MOUSEBUTTONDOWN and flying == False and game_over == False:
+            flying = True
+
+
+    pygame.display.update()
