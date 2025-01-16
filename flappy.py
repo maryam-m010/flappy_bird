@@ -58,6 +58,11 @@ class Bird(pygame.sprite.Sprite):
             if self.rect.bottom < 580:
                 self.rect.y += self.vel
 
+        if self.index >= len(self.images):
+            self.index = 0
+
+        self.image = self.images[self.index]
+
         if game_over == False:
             if pygame.mouse.get_pressed()[0] == 1 and self.clicked == 0:
                 self.clicked = 1
@@ -66,10 +71,10 @@ class Bird(pygame.sprite.Sprite):
             if pygame.mouse.get_pressed()[0] == 0:
                 self.clicked = 0
 
-        if self.index >= len(self.images):
-            self.index = 0
+            self.image = pygame.transform.rotate(self.images[self.index],-2)
+        else:
+            self.image = pygame.transform.rotate(self.images[self.index],-90)
 
-        self.image = self.images[self.index]
 
 class Pipe(pygame.sprite.Sprite):
     def __init__(self, pos, x, y):
